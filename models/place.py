@@ -2,8 +2,6 @@
 """ holds class Place"""
 import models
 from models.base_model import BaseModel, Base
-from os import getenv
-import sqlalchemy
 from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 
@@ -33,12 +31,16 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
-        reviews = relationship("Review",
-                               backref="place",
-                               cascade="all, delete, delete-orphan")
-        amenities = relationship("Amenity",
-                                 secondary=place_amenity,
-                                 viewonly=False)
+        reviews = relationship(
+            "Review",
+            backref="place",
+            cascade="all, delete, delete-orphan"
+        )
+        amenities = relationship(
+            "Amenity",
+            secondary=place_amenity,
+            viewonly=False
+        )
     else:
         city_id = ""
         user_id = ""
