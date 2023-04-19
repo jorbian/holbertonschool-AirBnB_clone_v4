@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 """ holds class Amenity"""
 import models
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
+
 
 class Amenity(BaseModel, Base):
     """Representation of Amenity """
