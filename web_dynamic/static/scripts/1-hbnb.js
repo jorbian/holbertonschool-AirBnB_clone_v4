@@ -1,15 +1,15 @@
-$('document').ready(function () {
-
-  /*****************************************************
-    display list of checkboxes clicked
-   *****************************************************/
-  let amenities = {};
-  $('INPUT[type="checkbox"]').change(function () {
-    if ($(this).is(':checked')) {
-      amenities[$(this).attr('data-id')] = $(this).attr('data-name');
+$(document).ready(function () {
+  const dict = {};
+  $(document).on('change', "input[type='checkbox']", function () {
+    if (this.checked) {
+      dict[$(this).data('id')] = $(this).data('name');
     } else {
-      delete amenities[$(this).attr('data-id')];
+      delete dict[$(this).data('id')];
     }
-    $('.amenities H4').text(Object.values(amenities).join(', '));
+    const amenList = [];
+    for (const key in dict) {
+      amenList.push(dict[key]);
+    }
+    $('.amenities h4').text(amenList.join(', '));
   });
 });
