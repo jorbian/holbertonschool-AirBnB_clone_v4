@@ -1,48 +1,81 @@
-#!/usr/bin/python3
-"""
-Flask App that integrates with AirBnB static HTML Template
-"""
-from flask import Flask, render_template, url_for
-from models import storage
-import uuid
-
-# flask setup
-app = Flask(__name__)
-app.url_map.strict_slashes = False
-port = 5000
-host = '0.0.0.0'
-
-
-# begin flask page rendering
-@app.teardown_appcontext
-def teardown_db(exception):
-    """
-    after each request, this method calls .close() (i.e. .remove()) on
-    the current SQLAlchemy Session
-    """
-    storage.close()
-
-
-@app.route('/1-hbnb')
-def hbnb_filters(the_id=None):
-    """
-    handles request to custom template with states, cities & amentities
-    """
-    state_objs = storage.all('State').values()
-    states = dict([state.name, state] for state in state_objs)
-    amens = storage.all('Amenity').values()
-    places = storage.all('Place').values()
-    users = dict([user.id, "{} {}".format(user.first_name, user.last_name)]
-                 for user in storage.all('User').values())
-    cache_id = uuid.uuid4()
-    return render_template('1-hbnb.html',
-                           states=states,
-                           amens=amens,
-                           places=places,
-                           users=users,
-                           cache_id=cache_id)
-
-if __name__ == "__main__":
-    """
-    MAIN Flask App"""
-    app.run(host=host, port=port)
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>AirBnB clone</title>
+    <link type="text/css" rel="stylesheet" href="../static/styles/4-common.css?{{ cache_id }}">
+    <link type="text/css" rel="stylesheet" href="../static/styles/3-header.css?{{ cache_id }}">
+    <link type="text/css" rel="stylesheet" href="../static/styles/3-footer.css?{{ cache_id }}">
+    <link type="text/css" rel="stylesheet" href="../static/styles/6-filters.css?{{ cache_id }}">
+	<link type="text/css" rel="stylesheet" href="../static/styles/8-places.css?{{ cache_id }}">
+    <link rel="icon" href="../static/images/icon.png?{{ cache_id }}" type="image/png">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="../static/scripts/1-hbnb.js?{{ cache_id }}"></script>
+  </head>
+  <body>
+    <header>
+      <div class="logo"></div>
+    </header>
+    <div class="container">
+      <section class="filters">
+        <div class="locations">
+          <h3>States</h3>
+          <h4>&nbsp;</h4>
+          <div class="popover">
+            <ul>
+              {% for state in states %}
+              <li><strong>{{ state.name }}</strong>
+                <ul>
+                  {% for city in state.cities %}
+                  <li>{{ city.name }}</li>
+                  {% endfor %}
+                </ul>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="amenities">
+          <h3>Amenities</h3>
+          <h4>&nbsp;</h4>
+          <ul class="popover">
+            {% for amenity in amenities %}
+            <li>
+              <input type="checkbox" data-id="{{ amenity.id }}" data-name="{{ amenity.name }}">
+              {{ amenity.name }}
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <button>Search</button>
+      </section>
+      <section class="places">
+        <h1>Places</h1>
+        <ul>
+          {% for place in places %}
+          <li>
+            <div>
+              <h2>{{ place.name }}</h2>
+              <div class="price_by_night">${{ place.price_by_night }}</div>
+            </div>
+            <div>
+              <div class="max_guest">{{ place.max_guest }} Guest{% if place.max_guest != 1 %}s{% endif %}</div>
+              <div class="number_rooms">{{ place.number_rooms }} Bedroom{% if place.number_rooms != 1 %}s{% endif %}</div>
+              <div class="number_bathrooms">{{ place.number_bathrooms }} Bathroom{% if place.number_bathrooms != 1 %}s{% endif %}</div>
+            </div>
+            <div class="user">
+              <b>Owner:</b> {{ place.user.first_name }} {{ place.user.last_name }}
+            </div>
+            <div class="description">
+              {{ place.description | safe }}
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
+    <footer>
+      <strong>Holberton School</strong>
+    </footer>
+  </body>
+</html>
